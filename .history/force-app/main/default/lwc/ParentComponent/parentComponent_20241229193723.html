@@ -1,0 +1,19 @@
+<!-- file: lwc/parentComponent/parentComponent.html -->
+<template>
+    <lightning-card title="Account List" icon-name="standard:account">
+        <!-- Loop through fetched accounts and display buttons -->
+        <template for:each={accounts} for:item="account">
+            <lightning-button key={account.Id} label={account.Name} onclick={handleAccountSelect} data-id={account.Id}>
+            </lightning-button>
+        </template>
+
+        <!-- Pass the selected account Id to the child component -->
+        <c-child-component account-id={selectedAccountId} onaccountviewed={handleAccountViewed}>
+        </c-child-component>
+
+        <!-- Display the selected account Id message -->
+        <template if:true={selectedAccountId}>
+            <p>Account with Id {selectedAccountId} is selected.</p>
+        </template>
+    </lightning-card>
+</template>
