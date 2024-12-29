@@ -1,0 +1,12 @@
+<!-- file: lwc/childComponent/childComponent.html -->
+<template>
+    <lightning-card title="Account Details" icon-name="standard:account">
+        <template if:true={accountId}>
+            <p>Account ID: {accountId}</p>
+            <lightning-button variant="success" label="Mark as Viewed" onclick={handleButtonClick}></lightning-button>
+        </template>
+        <template if:false={accountId}>
+            <p>No account selected.</p>
+        </template>
+    </lightning-card>
+</template>
