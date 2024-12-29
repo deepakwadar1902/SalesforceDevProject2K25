@@ -1,0 +1,15 @@
+<template>
+    <lightning-card title="Account List" icon-name="standard:account">
+        <template if:true={accounts}>
+            <ul>
+                <template for:each={accounts} for:item="account">
+                    <li key={account.Id}>
+                        <p><strong>{account.name}</strong></p>
+                        <p>{account.Industry}</p>
+                        <p>{account.Phone}</p>
+                    </li>
+                </template>
+            </ul>
+        </template>
+    </lightning-card>
+</template>

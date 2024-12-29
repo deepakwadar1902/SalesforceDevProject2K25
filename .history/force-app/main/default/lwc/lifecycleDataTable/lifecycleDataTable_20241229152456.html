@@ -1,0 +1,9 @@
+<template>
+    <lightning-card title="Account List from DataTable" icon-name="standard:account">
+        <!--Check if account are available-->
+        <template if:true={accounts}>
+            <lightning-datatable data={accounts} columns={columns} key-field="Id">
+            </lightning-datatable>
+        </template>
+    </lightning-card>
+</template>
