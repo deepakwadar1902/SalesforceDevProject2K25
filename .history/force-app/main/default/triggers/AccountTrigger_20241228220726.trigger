@@ -1,49 +1,42 @@
-trigger AccountTrigger on Account (before insert, after insert, before update, after update, before delete, after delete, after undelete) {
+trigger AccountTrigger on Account (before insert, after insert, before update, after update, before delete, after delete) {
     //Prepopulate shipping address from billing address
     //CONTEXT VARIABLES(Value which developer need to write logic)
     //CONTEXT VARIABLES 1: Trigger.new -> List of records that are get inserted
-    //CONTEXt VARIABLES 2: Trigger.isBefore  	-> Return true if trigger is running on before event
-    //CONTEXt VARIABLES 3: Trigger.isInsert  	-> Returns true if trigger is called when user has done insert operation
-    //CONTEXT VARIABLES 4: Trigger.isAfter 		-> Returns true if trigger is called after the records is inserted/updated
-    //CONTEXT VARIABLES 5: Trigger.newMap 		-> Return list of records that are inserted/updated with latest values in map format
-    //CONTEXT VARIABLES 6: Trigger.oldMap 		-> Return list of records that are inserted/updated with old/prior values in map fromat
-    //CONTEXT VARIABLES 7: Trigger.old			-> Return list of records that are inserted/updated with old/prior values
-    //CONTEXT VARIABLES 8: Trigger.isUpdate		-> Return true if trigger is called when record is updated
-    //CONTEXT VARIABLES 8: Trigger.isDelete		-> Return true if trigger is called when record is deleted
-    //CONTEXT VARIABLES 8: Trigger.isDelete		-> Return true if trigger is called when record is undeleted
-    
+    //CONTEXt VARIABLES 2: Trigge.isBefore  -> Return true if trigger is running on before event
+    //CONTEXt VARIABLES 3: Trigge.isInsert  -> Returns true if trigger is called when user has done insert operation
+    //CONTEXT VARIABLES 4: Trigge.isAfter 	-> Returns true if trigger is called after the records is inserted/updated
+    //CONTEXT VARIABLES 5: Trigge.newMap 	-> Return list of records that are inserted/updated with latest values in map format
+    //CONTEXT VARIABLES 6: Trigge.oldMap 	-> Return list of records that are inserted/updated with old/prior values in map fromat
+    //CONTEXT VARIABLES 7: Trigge.old		-> Return list of records that are inserted/updated with old/prior values
+    //CONTEXT VARIABLES 8: Trigge.isUpdate	-> Return true if trigger is called when record is updated
     //System.debug('I am in Trigger. Please confirm...');
     System.debug('Inserted Record:' + Trigger.new);
-    
+
     //BEFORE INSERT LOGIC
     if(Trigger.isBefore && Trigger.isInsert){
-        
+
         for(Account accRec: Trigger.new){
             System.debug('Acc record in loop ' + accRec);
             //Scenario - 1
-            if(accRec.ShippingCity == null && accRec.ShippingCountry == null && accRec.ShippingState == null && 
+            if(accRec.ShippingCity == null && accRec.ShippingCountry == null && accRec.ShippingState == null &&
                accRec.ShippingState == null && accRec.ShippingStreet == null && accRec.ShippingPostalCode == null){
-                   accRec.ShippingCity = accRec.BillingCity;
-                   accRec.ShippingCountry = accRec.BillingCountry;
-                   accRec.ShippingState = accRec.BillingState;
-                   accRec.ShippingStreet = accRec.BillingStreet;
-                   accRec.ShippingPostalCode = accRec.BillingPostalCode;  
-               }
+                accRec.ShippingCity = accRec.BillingCity;
+                accRec.ShippingCountry = accRec.BillingCountry;
+                accRec.ShippingState = accRec.BillingState;
+                accRec.ShippingStreet = accRec.BillingStreet;
+                accRec.ShippingPostalCode = accRec.BillingPostalCode;  
+            }
             //Scenario - 2
             if (accRec.AnnualRevenue < 1000){
                 accRec.addError('Annual Revenue cannot be less than 1000');
             }
-            //Sample Request - Throw Error if phone number is empty – Use Before insert & update
-            if(accRec.Phone == null){
-                accRec.AddError('Phone number is required field while creatin Account.');
-            }
         }
     }
-    
+
     //AFTER INSERT LOGIC
     //Scenario - 3
     if(Trigger.isAfter && Trigger.isInsert){
-        
+
         List<Contact> conListToInsert = new List<Contact>();
         for(Account accRec: Trigger.new){
             Contact con = new Contact();
@@ -54,13 +47,11 @@ trigger AccountTrigger on Account (before insert, after insert, before update, a
         if(conListToInsert.size()>0){
             INSERT conListToInsert;
         }
-        
     }
-    
     //BEFORE UPDATE LOGIC
     //Scenario - 4
     if(Trigger.isBefore && Trigger.isUpdate){
-        /*System.debug('New Values');
+    	/*System.debug('New Values');
         System.debug(Trigger.new);
         System.debug(Trigger.newMap); 		//Id, recordwithnewvalue
         
@@ -73,11 +64,6 @@ trigger AccountTrigger on Account (before insert, after insert, before update, a
             
             if(accRecNew.Name != accRecOld.Name){
                 accRecNew.addError('Account name once created cannot be modified');
-            }
-            
-            //Sample Request - Throw Error if phone number is empty – Use Before insert & update
-            if(accRecNew.Phone == null){
-                accRecNew.AddError('Phone number is required field while creatin Account.');
             }
         }
     }
@@ -123,7 +109,6 @@ trigger AccountTrigger on Account (before insert, after insert, before update, a
     }
     
     //BEFORE DELETE LOGIC
-    //Scenario - 6
     //Trigger.new is not available in Delete Operation(and newMap)
     //Trigger.old and oldMap is Available
     if(Trigger.isBefore && Trigger.isDelete){
@@ -136,17 +121,4 @@ trigger AccountTrigger on Account (before insert, after insert, before update, a
     }
     
     //AFTER DELETE LOGIC
-    //Scenario - 7
-    
-    if(Trigger.isAfter && Trigger.isDelete){
-        AccountTriggerHandler.sendEmailOnAfterDelete(Trigger.Old);
-    }
-    
-    //AFTER UNDELETE
-    //Scenario - 8
-     
-    if(Trigger.isAfter && Trigger.isUndelete){
-        AccountTriggerHandler.sendEmailOnUndelete(Trigger.new);
-    }
-    
 }
