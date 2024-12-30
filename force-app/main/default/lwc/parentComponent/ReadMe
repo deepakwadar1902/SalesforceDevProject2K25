@@ -1,0 +1,151 @@
+Let's break down the flow of the code, step-by-step, from the **parent component** to the **child component**, and how data and events are passed between them.
+
+### Step-by-Step Code Flow
+
+#### 1. **Parent Component Loads Data (Initial State)**
+When the **Parent Component** (`parentComponent`) loads:
+
+- The **Apex method** `getAccounts` is called via the `@wire` service to retrieve a list of **Account** records from Salesforce. This is executed automatically when the component is loaded.
+- The result of `getAccounts` is assigned to the `accounts` property. This data will be an array of `Account` records, which will contain fields like `Id` and `Name`.
+
+```javascript
+@wire(getAccounts)
+wiredAccounts({ error, data }) {
+    if (data) {
+        this.accounts = data; // Store accounts data in the component
+    } else if (error) {
+        console.error('Error fetching accounts:', error);
+    }
+}
+```
+
+At this point, the component has the list of **Account** records in `this.accounts`. 
+
+#### 2. **Parent Component Displays Account List**
+In the **HTML** of the parent component (`parentComponent.html`):
+
+- A `lightning-button` is dynamically rendered for each account in the `accounts` array. The `label` of the button is the account's `Name`, and the `data-id` attribute is set to the `account.Id`.
+- When any account button is clicked, the `handleAccountSelect` method is triggered.
+
+```html
+<template for:each={accounts} for:item="account">
+    <lightning-button 
+        key={account.Id} 
+        label={account.Name} 
+        onclick={handleAccountSelect} 
+        data-id={account.Id}>
+    </lightning-button>
+</template>
+```
+
+- The `data-id={account.Id}` stores the unique Salesforce Account ID for each button. This ID is used when selecting an account.
+
+#### 3. **User Clicks on an Account Button (Interaction)**
+When a user clicks on any of the rendered `lightning-button` elements:
+
+- The `handleAccountSelect` method is triggered.
+- Inside `handleAccountSelect`, the `event.target.dataset.id` is used to retrieve the `accountId` of the clicked button. The `data-id` attribute, which was set to the account's ID, is captured by `event.target.dataset.id`.
+
+```javascript
+handleAccountSelect(event) {
+    this.selectedAccountId = event.target.dataset.id; // Get the Account Id from the button
+    console.log('Selected Account Id:', this.selectedAccountId);  // Debugging log
+}
+```
+
+- The selected `accountId` is stored in the `selectedAccountId` property of the **parent component**.
+
+#### 4. **Pass Account ID to Child Component**
+Now that the `selectedAccountId` has been set in the parent component, this value is passed to the **child component** (`childComponent`) via an **attribute** (`account-id`).
+
+```html
+<c-child-component 
+    account-id={selectedAccountId} 
+    onaccountviewed={handleAccountViewed}>
+</c-child-component>
+```
+
+- The parent passes `selectedAccountId` (the Account Id) as a property to the child using the `account-id={selectedAccountId}` syntax. This makes the selected `accountId` available in the **child component** via the `@api` decorator.
+
+#### 5. **Child Component Receives Account ID**
+In the **child component** (`childComponent`), the `accountId` is declared as a property using the `@api` decorator. This makes it **reactive** and ensures the child component gets updated when the parent passes new data.
+
+```javascript
+@api accountId;  // Receives Account Id from the parent
+```
+
+- Whenever the `account-id` value changes in the parent component, the child automatically updates its `accountId` property.
+
+In the **child component’s `connectedCallback()` method**, we log the received `accountId` for debugging purposes to ensure it is passed correctly.
+
+```javascript
+connectedCallback() {
+    console.log('Received Account Id in child component:', this.accountId);
+}
+```
+
+- At this point, the child component now has the `accountId` and can render the associated account details.
+
+#### 6. **Child Component Renders the "Mark as Viewed" Button**
+The **child component** checks if the `accountId` has been passed. If it exists, it renders a **"Mark as Viewed"** button.
+
+```html
+<template if:true={accountId}>
+    <p>Account ID: {accountId}</p>
+    <lightning-button label="Mark as Viewed" onclick={handleButtonClick}></lightning-button>
+</template>
+<template if:false={accountId}>
+    <p>No account selected.</p>
+</template>
+```
+
+- The `lightning-button` is rendered only if the `accountId` is truthy (i.e., if it’s a valid `accountId`).
+
+#### 7. **User Clicks "Mark as Viewed" Button in Child Component**
+When the user clicks the **"Mark as Viewed"** button, the `handleButtonClick()` method in the **child component** is executed.
+
+```javascript
+handleButtonClick() {
+    const event = new CustomEvent('accountviewed', {
+        detail: { accountId: this.accountId }  // Passing accountId to parent
+    });
+    this.dispatchEvent(event);  // Dispatch the custom event
+}
+```
+
+- A custom event `accountviewed` is dispatched. This event carries the `accountId` in its `detail` property.
+
+#### 8. **Parent Component Receives Event**
+The **parent component** listens for the `accountviewed` event from the child component.
+
+```html
+<c-child-component 
+    account-id={selectedAccountId} 
+    onaccountviewed={handleAccountViewed}>
+</c-child-component>
+```
+
+- When the `accountviewed` event is fired from the child, the `handleAccountViewed` method in the **parent component** is triggered.
+
+```javascript
+handleAccountViewed(event) {
+    const viewedAccountId = event.detail.accountId;  // Retrieve the Account Id from event
+    console.log('Account viewed with Id:', viewedAccountId);  // Log the account Id
+}
+```
+
+- The `event.detail.accountId` contains the `accountId` from the child, and it’s logged or can be used for further processing.
+
+---
+
+### Summary of Flow:
+
+1. **Parent Component** fetches **Account records** from Salesforce.
+2. Each **Account** is rendered as a button with the `accountId` stored in the `data-id` attribute.
+3. The user **clicks on an Account button**, triggering the `handleAccountSelect` method.
+4. The parent sets the selected `accountId` and passes it to the **child component** via the `account-id` attribute.
+5. The **child component** receives the `accountId`, and the **"Mark as Viewed"** button is displayed.
+6. When the user clicks the **"Mark as Viewed"** button in the child, a custom event is dispatched to the parent with the selected `accountId`.
+7. The **parent component** listens for the event and handles it in the `handleAccountViewed` method.
+
+This flow allows **bidirectional communication** between the parent and child components using **properties** and **custom events** in Salesforce Lightning Web Components (LWC).
