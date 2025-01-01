@@ -1,0 +1,10 @@
+<template>
+    <lightning-card title="Lifecycle Hook Demo">
+        <div class="slds-p-around_small">
+            <lightning-input label="User Name" lwc:ref="userName"></lightning-input>
+            <lightning-button label="Submit" onclick={submitClickHandler}></lightning-button>
+
+            <c-lifecycle-hooks-child user-name={userName}></c-lifecycle-hooks-child>
+        </div>
+    </lightning-card>
+</template>
