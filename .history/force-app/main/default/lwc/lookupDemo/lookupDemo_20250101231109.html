@@ -1,0 +1,17 @@
+<template>
+    <lightning-card title="Search Accounts" icon-name="standard:search">
+        <!--https://developer.salesforce.com/docs/component-library/bundle/lightning-record-picker/documentation-->
+        <lightning-record-picker label="Account" placeholder="Search Accounts" object-api-name="Account" filter={filter}
+            display-info={displayInfo} matching-info={matchingInfo} onchange={HandleChange}>
+        </lightning-record-picker>
+    </lightning-card>
+    <lightning-card title="Data Table">
+        <lightning-layout>
+            <lightning-layout-item>
+                <lightning-datatable key-field="Id" data={contactList} columns={columns}>
+                </lightning-datatable>
+            </lightning-layout-item>
+        </lightning-layout>
+    </lightning-card>
+
+</template>
