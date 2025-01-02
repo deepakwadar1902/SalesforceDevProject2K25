@@ -5,14 +5,15 @@
             display-info={displayInfo} matching-info={matchingInfo} onchange={handleChange}>
         </lightning-record-picker>
     </lightning-card>
-    <template if:true={ShowContactTable}>
-        <lightning-card title="Data Table">
+    <lightning-card title="Data Table">
+        <template if:true={showContactTable}>
             <lightning-layout>
                 <lightning-layout-item>
                     <lightning-datatable key-field="Id" data={contactList} columns={columns}>
                     </lightning-datatable>
                 </lightning-layout-item>
             </lightning-layout>
-        </lightning-card>
-    </template>
+        </template>
+    </lightning-card>
+
 </template>

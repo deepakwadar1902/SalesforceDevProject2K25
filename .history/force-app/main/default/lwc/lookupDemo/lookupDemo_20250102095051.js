@@ -15,8 +15,6 @@ export default class LookupDemo extends LightningElement {
     handleChange(event){
         this.accountId = event.detail.recordId;
         console.log('this.accountId');
-        this.contactList = [];
-        this.ShowContactTable = false;    
     }
 
     @wire(callApex,{accId: '$accountId'})
