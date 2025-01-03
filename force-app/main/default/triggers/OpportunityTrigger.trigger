@@ -1,5 +1,6 @@
-trigger OpportunityTrigger on Opportunity (before insert, before update, after insert, after update) {
+trigger OpportunityTrigger on Opportunity (before insert, before update, after insert, after update, after delete) {
 
+    /*
     switch on Trigger.operationType{
         when BEFORE_INSERT, BEFORE_UPDATE{
             //Update the next step on Opportunity to 'Onboard a Contact'
@@ -43,5 +44,17 @@ trigger OpportunityTrigger on Opportunity (before insert, before update, after i
             }
             insert tasks;
         }
+    } */
+    
+    
+    if(Trigger.isAfter && Trigger.isDelete){
+        OpportunityTriggerHandler.createTaskOnOpportunityDeletion(Trigger.old);
+    }
+    
+    if(Trigger.isBefore && Trigger.isInsert){
+        OpportunityTriggerHandler.preventCreatingMoreThanOneOpps(Trigger.New);
+    }
+    if(Trigger.isBefore && Trigger.isUpdate){
+        OpportunityTriggerHandler.preventCreatingMoreThanOneOpps(Trigger.New);
     }
 }
