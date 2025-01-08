@@ -52,7 +52,7 @@ export default class LookupDemo extends LightningElement {
 
     async callImperativeApex(event){
         try{
-            const result = await callApex({accId: this.accountId});
+            const result = callApex({accId: this.accountId});
             this.contactList =  result;
             this.ShowContactTable = true;
         }catch(error){

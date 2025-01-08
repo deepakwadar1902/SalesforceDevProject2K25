@@ -36,7 +36,7 @@ export default class LookupDemo extends LightningElement {
     }*/
 
     //Imperative Approach
-    /*callImperativeApex(event){
+    callImperativeApex(event){
         callApex({accId: this.accountId})
         .then(result=>{
             this.contactList = result;
@@ -46,19 +46,6 @@ export default class LookupDemo extends LightningElement {
             this.contactList = undefined;
             this.ShowContactTable = false;
         })
-    }*/
-
-    //asyc Imperative
-
-    async callImperativeApex(event){
-        try{
-            const result = await callApex({accId: this.accountId});
-            this.contactList =  result;
-            this.ShowContactTable = true;
-        }catch(error){
-            this.contactList = undefined;
-            this.ShowContactTable = false;
-        }
     }
 
     //1st
