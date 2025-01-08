@@ -16,11 +16,7 @@ export default class LookupDemo extends LightningElement {
         this.accountId = event.detail.recordId;
         console.log('this.accountId');
         this.contactList = [];
-        this.ShowContactTable = false;
-        //Imperative approach we need to call the method
-        if(this.accountId){
-            this.callImperativeApex(event);
-        } 
+        this.ShowContactTable = false;    
     }
 
     //Declarative Approach
@@ -36,29 +32,16 @@ export default class LookupDemo extends LightningElement {
     }*/
 
     //Imperative Approach
-    /*callImperativeApex(event){
+    callImperativeApex(event){
         callApex({accId: this.accountId})
         .then(result=>{
-            this.contactList = result;
+            this.contactList = undefined;
             this.ShowContactTable = true;
         })
         .catch(error=>{
             this.contactList = undefined;
             this.ShowContactTable = false;
         })
-    }*/
-
-    //asyc Imperative
-
-    async callImperativeApex(event){
-        try{
-            const result = await callApex({accId: this.accountId});
-            this.contactList =  result;
-            this.ShowContactTable = true;
-        }catch(error){
-            this.contactList = undefined;
-            this.ShowContactTable = false;
-        }
     }
 
     //1st
