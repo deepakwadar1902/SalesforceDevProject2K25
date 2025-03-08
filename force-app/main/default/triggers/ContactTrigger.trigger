@@ -1,4 +1,4 @@
-trigger ContactTrigger on Contact (after insert) {
+trigger ContactTrigger on Contact (after insert, before delete) {
 
     //NON BULKIFICATION OF CODE
     /*
@@ -12,10 +12,14 @@ trigger ContactTrigger on Contact (after insert) {
             con.lastname = con.lastname + 'ABC'; //Deepak --> Deepak ABC
         }
     }
-	*/
+	
     
     if(Trigger.isAfter && Trigger.isInsert && !ContactTriggerHandler.isTriggerRan){
         ContactTriggerHandler.isTriggerRan = true;
         ContactTriggerHandler.createDuplicateContact(Trigger.new);
     }
+    
+    if(Trigger.isBefore && Trigger.isDelete){
+        ContactTriggerHandler.preventConDeletionIfAccIsActive(Trigger.old);
+    }*/
 }
