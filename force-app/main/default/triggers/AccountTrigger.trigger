@@ -14,7 +14,8 @@ trigger AccountTrigger on Account (before insert, after insert, before update, a
     
     //System.debug('I am in Trigger. Please confirm...');
     System.debug('Inserted Record:' + Trigger.new);
-    
+    /*
+     * 
     //BEFORE INSERT LOGIC
     //Scenario - 1 & 2
     if(Trigger.isBefore && Trigger.isInsert){
@@ -26,15 +27,19 @@ trigger AccountTrigger on Account (before insert, after insert, before update, a
     //Scenario - 3
     if(Trigger.isAfter && Trigger.isInsert){
         
-        AccountTriggerHandler.insertContact(Trigger.new);
+        //AccountTriggerHandler.insertContact(Trigger.new);
+        //AccountTriggerHandler.createAccountRelatedOpps(Trigger.new);
+        AccountTriggerHandler.AccountTriggerForContact(Trigger.new);
     }
-    
+    */
     //BEFORE UPDATE LOGIC
     //Scenario - 4
     if(Trigger.isBefore && Trigger.isUpdate){
-       AccountTriggerHandler.updateAccountName(Trigger.new, Trigger.oldMap);
+        //AccountTriggerHandler.updateAccountName(Trigger.new, Trigger.oldMap);
+		//AccountTriggerHandler.updateAccountOwnerBasedOnEmail(Trigger.new, Trigger.oldMap);
+        AccountTriggerHandler.accountStatusValidation(Trigger.new, Trigger.oldMap);
     }
-    
+    /*
     //AFTER UPDATE LOGIC
     //Scenario - 5
     
@@ -58,9 +63,13 @@ trigger AccountTrigger on Account (before insert, after insert, before update, a
     
     //AFTER UNDELETE
     //Scenario - 8
-     
+    
     if(Trigger.isAfter && Trigger.isUndelete){
         AccountTriggerHandler.sendEmailOnUndelete(Trigger.new);
     }
     
+    //ContactCreationQueueable
+    
+    
+    */
 }

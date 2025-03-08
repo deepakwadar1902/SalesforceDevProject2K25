@@ -1,6 +1,6 @@
 trigger OpportunityTrigger on Opportunity (before insert, before update, after insert, after update, after delete) {
 
-    
+    /*
     switch on Trigger.operationType{
         when BEFORE_INSERT, BEFORE_UPDATE{
             //Update the next step on Opportunity to 'Onboard a Contact'
@@ -56,5 +56,5 @@ trigger OpportunityTrigger on Opportunity (before insert, before update, after i
     }
     if(Trigger.isBefore && Trigger.isUpdate){
         OpportunityTriggerHandler.preventCreatingMoreThanOneOpps(Trigger.New);
-    }
+    }*/
 }

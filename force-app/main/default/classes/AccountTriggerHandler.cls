@@ -1,5 +1,10 @@
 public class AccountTriggerHandler {
 
+    //ContactCreationQueueable 
+    public static void AccountTriggerForContact(List<Account> accListNew){
+        System.enqueueJob(new ContactCreationQueueable(accListNew));
+    }
+    
     //BEFORE INSERT LOGIC
     //Scenario - 1 & 2
     //Auto populate Shipping address and Through and error if Annual Revenue less 100
@@ -21,9 +26,10 @@ public class AccountTriggerHandler {
                 accRec.addError('Annual Revenue cannot be less than 1000');
             }
             //Sample Request - Throw Error if phone number is empty – Use Before insert & update
+            /*
             if(accRec.Phone == null){
                 accRec.AddError('Phone number is required field while creatin Account.');
-            }
+            }*/
         }
     }
     
@@ -163,5 +169,96 @@ public class AccountTriggerHandler {
         Messaging.sendEmail(emailToBeSend);
     }
     
+	
+	/*Scenario - Whenever Account is created then related Opportunity needs to be 
+	 * created and opp name format - Acc Name + Current DateTime Stamp */
     
+    public static void createAccountRelatedOpps(List<Account> AccNewList){
+        
+        List<Opportunity> oppList = new List<Opportunity>();
+        for(Account accRec: AccNewList){
+            
+            if(accRec.Name != null){
+                Opportunity op = new Opportunity();
+                DateTime dt = DateTime.now();
+                String dateTimestr = dt.format('dd/mm/yyyy hh:mm:ss');
+                op.AccountId = accRec.Id;
+                op.StageName = 'Prospecting';
+                op.CloseDate = System.TODAY() + 7;
+                op.Name = accRec.Name+ ' ' + dateTimestr;
+                oppList.add(op);
+            }
+        }
+        if(!oppList.isEmpty()){
+            INSERT oppList;
+        }
+    }
+    
+    
+    public static void updateAccountOwnerBasedOnEmail(List<Account> accNewList, Map<Id, Account> oldMap){
+        
+        //Collect all the new email values from account being update
+        Set<String> accEmail = new Set<String>();
+        System.debug('accEmail = ' + accEmail);
+        for(Account acc : accNewList){
+            //add to set if Email__c is not null and has been changed
+            if(acc.Email__c != null && acc.Email__c != oldMap.get(acc.Id).Email__c){
+                accEmail.add(acc.Email__c);
+            }
+        }
+        //Map User emails to their IDs
+        map<String, Id> userEmailstoIdMap = new Map<String, Id>();
+        
+        if(!accEmail.isEmpty()){
+            //Query User whose email matches the account emails
+            for(User user: [select Id, Name, Email from User where Email in:accEmail]){
+                userEmailstoIdMap.put(user.Email, user.id);
+            }
+        }
+        
+        //Update Account ownerId based on matching User email
+        for(Account acc:AccNewList){
+            if(userEmailstoIdMap.containsKey(acc.Email__c)){
+                acc.OwnerId = userEmailstoIdMap.get(acc.Email__c);
+            }
+        }
+    }
+    
+    public static void accountStatusValidation(List<Account> accNewList, Map<Id, Account> oldMap){
+        //set to collect Account Ids where Active status is changing from 'Yes' to 'No'
+        
+        Set<Id> accIds = new Set<Id>();
+        
+        //Identify account Active status is being changed from 'Yes' to 'No'
+        for(Account acc: AccNewList){
+            if(acc.Active__c == 'No' && oldMap.get(acc.id).Active__c == 'Yes'){
+                accIds.add(acc.Id);
+            }
+        }
+        
+        //Query related opportunities for the identified accounts
+        
+        List<Opportunity> relatedOpps = [Select Id, AccountId, StageName from Opportunity 
+                                        where AccountId IN : accIds AND StageName != 'Closed Won' AND StageName != 'Closed Lost'];
+        
+        //Map to track account with open opportunities
+        
+        Set<Id> accIdsWithOpenOpps = new Set<Id>();
+        
+        //populate the set with accountId that have open opps
+        
+        for(Opportunity opp: relatedOpps){
+            if(opp.AccountId != null){
+                accIdsWithOpenOpps.add(opp.AccountId);
+            }
+        }
+        
+        //prevent changing the Active status if there are open opps associated with accounts
+        
+        for(Account acc: AccNewList){
+            if(accIdsWithOpenOpps.contains(acc.Id)){
+                acc.Active__c.addError('Cannot change Active status to No because there is an open opps associated with Account.');
+            }
+        }
+    }
 }
