@@ -16,7 +16,7 @@ export default class WireAndImperative extends LightningElement {
             alert('Outside If wire');
             if(data){
                 alert('Inside If wire');
-                this.showData = data.Name;  
+                this.showData = data.Name;
             }else if(error){
                 console.log('Error: ' +error );
             }
