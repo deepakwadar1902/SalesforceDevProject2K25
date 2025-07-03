@@ -1,5 +1,5 @@
 import { LightningElement } from 'lwc';
 
 export default class ParentCmp extends LightningElement {
-    parentGreetings = 'Hello from Parent..';
+    value = 'Value from parent component';
 }
