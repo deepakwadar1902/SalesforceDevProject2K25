@@ -261,4 +261,46 @@ public class AccountTriggerHandler {
             }
         }
     }
+    
+    public static void updateRelatedOppDesc(List<Account> accList, Map<Id, Account> oldMap){
+        Map<Id, Account> accountIdtoAccMap = new Map<Id, Account>();
+        for(Account acc : accList){
+            if(oldMap != null && acc.Phone != oldMap.get(acc.Id).Phone){
+                accountIdtoAccMap.put(acc.Id, acc);
+            }
+        } 
+        List<Opportunity> oppListToUpdated = new List<Opportunity>();
+        for(Opportunity opp : [SELECT id, AccountId, Description FROM Opportunity WHERE AccountId IN : accountIdtoAccMap.keySet()]){
+            if(accountIdtoAccMap.ContainsKey(opp.AccountId)){
+                opp.Description = accountIdtoAccMap.get(opp.AccountId).Phone;
+                oppListToUpdated.add(opp);
+            }
+        } 
+        if(!oppListToUpdated.isEmpty()){
+            UPDATE oppListToUpdated;
+        }
+    }
+    
+    
+    //After Insert:
+    //Whenever the Account is created with Industry as Banking then create a contact for 
+	//account, Contact Lastname as Account name and contact phone as account phone.
+
+    public static void insertContactOnAccCreation(List<Account> accList){
+        
+        List<Contact> conListToCreate = new List<Contact>();
+        
+        for(Account acc : accList){
+            if(acc.Industry == 'Banking'){
+                Contact con = new Contact();
+                con.LastName = acc.Name;
+                con.Phone = acc.Phone;
+                con.AccountId = acc.Id;
+                conListToCreate.add(con);
+            }
+        }
+        if(!conListToCreate.isEmpty()){
+            INSERT conListToCreate;
+        }
+    }
 }
