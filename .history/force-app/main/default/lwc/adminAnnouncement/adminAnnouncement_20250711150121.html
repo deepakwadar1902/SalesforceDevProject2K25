@@ -1,0 +1,17 @@
+<template>
+    <article class="slds-card">
+        <div class="slds-card__header slds-grid">
+            <div class={computedHeaderClass}>
+                <div class="slds-var-p-around_small">
+                    <span class="slds-text-heading_small">{title}</span>
+                </div>
+            </div>
+        </div>
+        <div class="slds-card__body">
+            <p>{message}</p>
+            <template lwc:if={showButton}>
+                <lightning-button label={ctaLabel} title={ctaLabel} onclick={handleClick}></lightning-button>
+            </template>
+        </div>
+    </article>
+</template>
