@@ -1,5 +1,5 @@
 public class AccountTriggerHandler {
-
+	public static boolean isTriggerRan = false;  // Recursive handled for Line No - 310
     //ContactCreationQueueable 
     public static void AccountTriggerForContact(List<Account> accListNew){
         System.enqueueJob(new ContactCreationQueueable(accListNew));
@@ -303,4 +303,34 @@ public class AccountTriggerHandler {
             INSERT conListToCreate;
         }
     }
+    
+    /* Creates the number of contacts which are equal to the number which we will enter in the 
+		Number of Locations field on the Account Object. */
+    
+    public static void createContactOnAccUpdation(List<Account> accList){
+        
+        List<Contact> contactsToInsert = new List<Contact>();
+        
+        for(Account acc : accList){
+            //Ensure Number of Location has valid number
+            if(acc.NumberofLocations__c != null && acc.NumberofLocations__c > 0){
+                //Calculate the difference in number of contacts to create
+                Decimal numberOfContactsToCreate = acc.NumberofLocations__c;
+                
+                //create Contact based on Number of Location
+                for(Integer i = 0; i < numberOfContactsToCreate; i++){
+                    Contact con = new Contact();
+                    con.LastName = acc.Name + ' - Location ' + (i + 1);
+                    con.AccountId = acc.Id;
+                    contactsToInsert.add(con);
+                }
+                
+            }
+        }
+        //insert all new contacts
+        if(!contactsToInsert.isEmpty()){
+            INSERT contactsToInsert;
+        }
+    }
+	
 }
