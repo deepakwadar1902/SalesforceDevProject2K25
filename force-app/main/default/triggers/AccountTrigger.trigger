@@ -25,29 +25,31 @@ trigger AccountTrigger on Account (before insert, after insert, before update, a
     */
     //AFTER INSERT LOGIC
     //Scenario - 3
-    if(Trigger.isAfter && Trigger.isInsert){
-        
+    if(Trigger.isAfter && Trigger.isInsert  && !ContactTriggerHandler.isTriggerRan){
+        ContactTriggerHandler.isTriggerRan = true;
         //AccountTriggerHandler.insertContact(Trigger.new);
         //AccountTriggerHandler.createAccountRelatedOpps(Trigger.new);
         //AccountTriggerHandler.AccountTriggerForContact(Trigger.new);
         AccountTriggerHandler.insertContactOnAccCreation(Trigger.New);
+        AccountTriggerHandler.createContactOnAccUpdation(Trigger.New);
     }
-    /*
+    
     //BEFORE UPDATE LOGIC
     //Scenario - 4
-    if(Trigger.isBefore && Trigger.isUpdate){
+    /*if(Trigger.isBefore && Trigger.isUpdate){
         //AccountTriggerHandler.updateAccountName(Trigger.new, Trigger.oldMap);
 		//AccountTriggerHandler.updateAccountOwnerBasedOnEmail(Trigger.new, Trigger.oldMap);
         AccountTriggerHandler.accountStatusValidation(Trigger.new, Trigger.oldMap);
-    }
+    }*/
    
     //AFTER UPDATE LOGIC
     //Scenario - 5
     
-    if(Trigger.isAfter && Trigger.isUpdate){
-        
-        AccountTriggerHandler.updateBillingAddressOnChildContacts(Trigger.new, Trigger.oldMap);
-		AccountTriggerHandler.updateRelatedOppDesc(Trigger.New, Trigger.oldMap);
+    if(Trigger.isAfter && Trigger.isUpdate && !ContactTriggerHandler.isTriggerRan){
+        ContactTriggerHandler.isTriggerRan = true;
+        //AccountTriggerHandler.updateBillingAddressOnChildContacts(Trigger.new, Trigger.oldMap);
+		//AccountTriggerHandler.updateRelatedOppDesc(Trigger.New, Trigger.oldMap);
+        AccountTriggerHandler.createContactOnAccUpdation(Trigger.New);
     }
      /*
     //BEFORE DELETE LOGIC
